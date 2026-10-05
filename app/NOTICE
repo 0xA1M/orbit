@@ -1,0 +1,10 @@
+This code is from Google's microservices-demo. I'm using it as the app for my orbit project.
+
+Repo: https://github.com/GoogleCloudPlatform/microservices-demo
+Branch: main
+Commit: 38e7348
+Release: v0.10.7
+
+I kept src, protos and LICENSE only. All infra and docker work on top is mine.
+
+Change from upstream: I removed shoppingassistantservice. It needs GCP AlloyDB and LLM wiring I do not use. I also cut its routes from frontend. So frontend now needs 7 backends instead of 8.
