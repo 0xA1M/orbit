@@ -1,0 +1,15 @@
+# OpenTofu / Terraform state and credentials — never leave the machine
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.tfstate.lock.info
+*.tfvars
+!terraform.tfvars.example
+
+# CLI crash logs
+crash.log
+crash.*.log
+
+# editor and OS noise
+*.swp
+.DS_Store
