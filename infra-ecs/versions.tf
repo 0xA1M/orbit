@@ -12,10 +12,10 @@ terraform {
 
   # S3 backend to manage and store state
   backend "s3" {
-    bucket = "orbit-tfstate-ACCOUNT_ID_REMOVED"
-    key = "orbit/infra-ecs/terraform.tfstate"
-    region = "us-east-1"
+    bucket       = "orbit-tfstate-ACCOUNT_ID_REMOVED"
+    key          = "orbit/infra-ecs/terraform.tfstate"
+    region       = "us-east-1"
     use_lockfile = true
-    encrypt = true
+    encrypt      = true
   }
 }
