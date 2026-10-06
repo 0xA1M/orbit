@@ -1,3 +1,7 @@
 provider "aws" {
-  region = vars.region
+  region = var.region
+}
+
+module "network" {
+  source = "./modules/network"
 }
