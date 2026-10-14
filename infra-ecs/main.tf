@@ -9,3 +9,8 @@ module "network" {
 module "ecr" {
   source = "./modules/ecr"
 }
+
+module "acm" {
+  source      = "./modules/acm"
+  domain_name = var.domain_name
+}
