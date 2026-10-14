@@ -67,7 +67,7 @@ resource "aws_ecr_lifecycle_policy" "infra_ecs_orbit_repo_policy" {
         "storageClass": "archive",
         "countType": "sinceImageTransitioned",
         "countUnit": "days",
-        "countNumber": 60
+        "countNumber": 90
       },
       "action": {
         "type": "expire"
