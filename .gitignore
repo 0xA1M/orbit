@@ -5,7 +5,6 @@
 .terraform.tfstate.lock.info
 *.tfvars
 !*.tfvars.example
-!*/bootstrap/terraform.tfstate
 
 # CLI crash logs
 crash.log
