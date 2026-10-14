@@ -4,16 +4,28 @@
     "opentofu@latest",
     "go@latest",
     "gopls@latest",
-    "grpcurl@latest"
+    "grpcurl@latest",
+    "terraform-ls@latest"
   ],
+  "env": {
+    "AWS_REGION": "us-east-1"
+  },
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
+      "echo 'orbit env ready. usage: devbox run <init|fmt|validate|plan|apply|destroy> [-- <root>]. root defaults to infra-ecs.'"
     ],
     "scripts": {
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
-      ]
+      "init": "tofu -chdir=${1:-infra-ecs} init -backend-config=backend.tfvars",
+      "fmt": "tofu fmt -recursive ${1:-.}",
+      "validate": "tofu -chdir=${1:-infra-ecs} validate",
+      "plan": "tofu -chdir=${1:-infra-ecs} plan",
+      "apply": "tofu -chdir=${1:-infra-ecs} apply",
+      "destroy": "tofu -chdir=${1:-infra-ecs} destroy",
+      "sts": "aws sts get-caller-identity",
+      "ecr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-east-1.amazonaws.com"
     }
+  },
+  "aliases": {
+    "tf": "tofu"
   }
 }

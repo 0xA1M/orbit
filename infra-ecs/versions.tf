@@ -11,8 +11,8 @@ terraform {
   required_version = "~> 1.12"
 
   # S3 backend to manage and store state
+  # the bucket name is deliberately NOT here; it is passed at init time from backend.tfvars
   backend "s3" {
-    bucket       = "orbit-tfstate-ACCOUNT_ID_REMOVED"
     key          = "orbit/infra-ecs/terraform.tfstate"
     region       = "us-east-1"
     use_lockfile = true

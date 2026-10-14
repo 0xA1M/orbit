@@ -1,4 +1,4 @@
-# network module — VPC, 2 AZ, 1 public + 1 private subnet per AZ, IGW, 2 NAT (one per AZ), route tables
+# network module - VPC, 2 AZ, 1 public + 1 private subnet per AZ, IGW, 2 NAT (one per AZ), route tables
 
 # the whole addressing space for this stack; /16 gives room for ~256 subnets
 variable "vpc_cidr" {
