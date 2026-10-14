@@ -22,9 +22,19 @@ Files, each has short comments explaining what is going on:
 
 After bootstrap is applied, the other roots point their backend block at this bucket using the outputs.
 
+## ecr
+
+Every service gets its own image repository under a shared `orbit/` namespace, so `orbit/frontend`, `orbit/cartservice` and the rest sit side by side and can be scoped as one group by IAM and CI.
+
+Tags are immutable once pushed, so a git SHA tag cannot be overwritten and a deployed SHA always points at the image that was actually built. The two exceptions are `latest*` and `dev-*`: CI repoints `latest` on every build, and local pushes reuse a `dev-` tag, so those have to stay mutable.
+
+Every push is scanned for known CVEs automatically, and repos are encrypted at rest with AES256, the S3-managed keys, so there is no customer KMS key to pay for or rotate.
+
+A lifecycle policy keeps storage from growing forever. An image no one has pulled in 15 days moves to archive storage, which is cheaper but still pullable, and 60 days after it was archived it is expired and deleted.
+
 ## the rest of the infra
 
-- main root: VPC (2 AZ, single NAT), ECR repos per service, ALB with ACM cert on 443
+- main root: VPC (2 AZ, one NAT per AZ), ECR repos per service, ALB with ACM cert on 443
 - 10 ECS Fargate services discovered through Service Connect namespace orbit.local
 - GitHub Actions with OIDC federation, no stored keys, images tagged by git SHA
 - budget alarm at 10 dollars because AWS bills quietly

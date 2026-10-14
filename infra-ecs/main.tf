@@ -5,3 +5,7 @@ provider "aws" {
 module "network" {
   source = "./modules/network"
 }
+
+module "ecr" {
+  source = "./modules/ecr"
+}
