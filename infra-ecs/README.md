@@ -43,6 +43,12 @@ Outputs:
 - certificate_arn, the ARN of the issued cert
 - domain_validation, the record name and value to paste into Cloudflare
 
+## alb
+
+The public front door. Internet-facing ALB across both public subnets, with its own security group letting 80 and 443 in from anywhere. Port 443 serves the ACM cert and forwards everything to the frontend target group. Port 80 just bounces everything to 443 with a permanent redirect.
+
+Targets register by IP, not instance id, because Fargate tasks are ENIs with addresses, not EC2 boxes. Health checks hit `/_healthz` and want a 200 back. Deletion protection stays off on purpose since the whole stack gets torn down after sessions.
+
 ## how it fits together
 
 Traffic comes in from the internet to an ALB sitting in the public subnets. The ALB terminates TLS with the ACM cert and forwards plain HTTP to the frontend service on 8080. Everything else talks behind it over Service Connect DNS names like `productcatalogservice:3550`, inside the private subnets. Outbound stuff like ECR image pulls and log shipping goes out through one NAT per AZ.
