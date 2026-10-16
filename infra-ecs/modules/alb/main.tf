@@ -1,7 +1,7 @@
 # alb module - public front door: SG, ALB, one target group, 443 + 80 listeners
 
 # edge firewall: 80 + 443 in from anywhere, all out. task SGs ingress from
-# this SG id later, so no task is ever directly reachable
+# this SG id, so no task is ever directly reachable
 resource "aws_security_group" "infra_ecs_orbit_alb_sg" {
   name        = "${var.name_prefix}-alb-sg"
   description = "Allow HTTP/HTTPS inbound traffic and all outbound traffic"
@@ -34,13 +34,11 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_traffic" {
   security_group_id = aws_security_group.infra_ecs_orbit_alb_sg.id
 
   cidr_ipv4   = "0.0.0.0/0"
-  from_port   = 0
   ip_protocol = "-1"
-  to_port     = 0
 }
 
 # internet-facing ALB across both public subnets. deletion protection stays
-# off on purpose: this stack is destroyed after every session
+# off so a teardown is never blocked on this resource
 resource "aws_lb" "infra_ecs_orbit_alb" {
   name               = "${var.name_prefix}-alb"
   internal           = false

@@ -1,13 +1,13 @@
-# what the root reads back, later CI pushes to repo_url and ECS pulls by arn
+# ecr module - outputs for tasks and pushes, keyed by service name
 
-# list, one URL per repo in for_each order; a keyed map is a small change if CI needs lookup by service
+# the AWS hostname per service, in the form account.dkr.ecr.region.amazonaws.com/orbit/name
 output "repo_url" {
-  description = "Repository URL"
-  value       = [for r in aws_ecr_repository.infra_ecs_orbit_repo : r.repository_url]
+  description = "Repository URL, keyed by service name"
+  value       = { for k, v in aws_ecr_repository.infra_ecs_orbit_repo : k => v.repository_url }
 }
 
-# same list shape, one arn per repo
+# ARN used by task definitions or pull policies
 output "repo_arn" {
-  description = "Repository ARN"
-  value       = [for r in aws_ecr_repository.infra_ecs_orbit_repo : r.arn]
+  description = "Repository ARN, keyed by service name"
+  value       = { for k, v in aws_ecr_repository.infra_ecs_orbit_repo : k => v.arn }
 }

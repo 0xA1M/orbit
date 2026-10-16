@@ -1,4 +1,4 @@
-# what the ecs-service module and the Cloudflare step consume from here
+# consumed downstream: DNS name for the site record, TG ARN for service registration, SG id for task ingress
 
 # the AWS hostname the site A record will point at
 output "dns_name" {

@@ -52,7 +52,7 @@ resource "aws_subnet" "infra_ecs_pub_subnet" {
   }
 }
 
-# all 10 Fargate tasks live here, private-only, egress via own-AZ NAT
+# all Fargate tasks live here, private-only, egress via own-AZ NAT
 resource "aws_subnet" "infra_ecs_prv_subnet" {
   vpc_id = aws_vpc.infra_ecs_vpc.id
   count  = 2
@@ -66,8 +66,8 @@ resource "aws_subnet" "infra_ecs_prv_subnet" {
   }
 }
 
-# one NAT per AZ: each private subnet egresses through the NAT of its own AZ
-# depends_on IGW is what makes the first apply not fail on missing route path
+# one NAT per AZ: each private subnet egresses through the NAT of its own AZ.
+# the IGW must exist first or the NAT API call races ahead and fails
 resource "aws_nat_gateway" "infra_ecs_nat_gw" {
   allocation_id = aws_eip.infra_ecs_eip[count.index].id
   subnet_id     = aws_subnet.infra_ecs_pub_subnet[count.index].id

@@ -1,4 +1,4 @@
-# consumed by the future ALB listener on 443
+# the ALB listener terminates TLS with this cert
 output "certificate_arn" {
   description = "ARN of the ACM certificate for the site hostname"
   value       = module.acm.certificate_arn

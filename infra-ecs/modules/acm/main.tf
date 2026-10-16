@@ -1,9 +1,9 @@
 # acm module - single-hostname TLS cert for the shop front door
 
-# one cert for the site hostname only, no apex, no wildcard. DNS validated,
-# but there is deliberately no aws_acm_certificate_validation resource here:
-# the zone lives in Cloudflare, so the validation CNAME gets created by hand
-# and a waiter resource would just block apply for up to 75 minutes then fail
+# one cert for the site hostname only, no apex, no wildcard. DNS-validated
+# against a zone outside Route53, so the validation CNAME is created outside
+# this config: the cert stays PENDING until that record exists, then ACM
+# issues it with nothing further required here
 resource "aws_acm_certificate" "infra_ecs_cert" {
   domain_name       = var.domain_name
   validation_method = "DNS"

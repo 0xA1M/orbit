@@ -4,7 +4,7 @@
 resource "aws_ecr_repository" "infra_ecs_orbit_repo" {
   for_each = var.service_list
 
-  # orbit/ namespace lets IAM and CI scope with one orbit/* rule,
+  # orbit/ namespace lets IAM scope every repo with one prefix rule,
   # immutable stops a pushed git SHA from being silently overwritten,
   # AES256 is the free S3-managed key, KMS would cost a key per repo
   name                 = "${var.name_prefix}/${each.key}"
@@ -13,7 +13,7 @@ resource "aws_ecr_repository" "infra_ecs_orbit_repo" {
     encryption_type = "AES256"
   }
 
-  # latest* stays mutable, CI moves it on every build
+  # latest* stays mutable because a floating tag gets repointed on every build
   image_tag_mutability_exclusion_filter {
     filter      = "latest*"
     filter_type = "WILDCARD"
@@ -40,7 +40,7 @@ resource "aws_ecr_lifecycle_policy" "infra_ecs_orbit_repo_policy" {
   for_each   = var.service_list
   repository = aws_ecr_repository.infra_ecs_orbit_repo[each.key].name
 
-  # archive first (cheap but still pullable), expire only 60 days later,
+  # archive first (cheap but still pullable), expire 90 days after that,
   # so a rollback still has a window before the image is really gone
   policy = <<EOF
 {
