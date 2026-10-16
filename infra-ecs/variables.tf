@@ -25,6 +25,14 @@ variable "tags" {
   default     = {}
 }
 
+# tag appended to the image uri; note the repo policy lets this one be
+# repointed, which trades immutability for deploy convenience
+variable "image_tag" {
+  type        = string
+  description = "Image tag the ECS task definitions pull"
+  default     = "latest"
+}
+
 # the full service set
 variable "service_list" {
   type        = set(string)
