@@ -30,6 +30,9 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_https" {
   to_port     = 443
 }
 
+# all protocols and all ports: ip_protocol -1 means from_port and to_port
+# must be omitted per the provider docs; setting 0/0 creates it at apply but
+# ModifySecurityGroupRules then rejects the convergence forever
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_traffic" {
   security_group_id = aws_security_group.infra_ecs_orbit_alb_sg.id
 
