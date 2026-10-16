@@ -12,8 +12,9 @@ output "task_definition" {
   value       = aws_ecs_task_definition.infra_ecs_task_def.arn
 }
 
-# the FQDN callers actually dial for this service, service_name.orbit.local
-output "discovery_fqdn" {
-  description = "Fully qualified Service Connect name of this service"
-  value       = "${var.service_name}.${var.name_prefix}.local"
+# the dialable name for this service: the short endpoint name the Service
+# Connect resolver answers inside tasks (not a VPC DNS record)
+output "discovery_name" {
+  description = "Endpoint name other services dial for this service"
+  value       = var.service_name
 }

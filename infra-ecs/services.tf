@@ -25,12 +25,12 @@ locals {
       port      = 5050
       port_name = "grpc"
       environment = {
-        SHIPPING_SERVICE_ADDR        = "shippingservice.orbit.local:50051"
-        PRODUCT_CATALOG_SERVICE_ADDR = "productcatalogservice.orbit.local:3550"
-        CART_SERVICE_ADDR            = "cartservice.orbit.local:7070"
-        CURRENCY_SERVICE_ADDR        = "currencyservice.orbit.local:7000"
-        EMAIL_SERVICE_ADDR           = "emailservice.orbit.local:8082"
-        PAYMENT_SERVICE_ADDR         = "paymentservice.orbit.local:50052"
+        SHIPPING_SERVICE_ADDR        = "shippingservice:50051"
+        PRODUCT_CATALOG_SERVICE_ADDR = "productcatalogservice:3550"
+        CART_SERVICE_ADDR            = "cartservice:7070"
+        CURRENCY_SERVICE_ADDR        = "currencyservice:7000"
+        EMAIL_SERVICE_ADDR           = "emailservice:8082"
+        PAYMENT_SERVICE_ADDR         = "paymentservice:50052"
       }
       cpu        = "256"
       memory     = "512"
@@ -63,13 +63,13 @@ locals {
       port      = 8080
       port_name = "http"
       environment = {
-        PRODUCT_CATALOG_SERVICE_ADDR = "productcatalogservice.orbit.local:3550"
-        CURRENCY_SERVICE_ADDR        = "currencyservice.orbit.local:7000"
-        CART_SERVICE_ADDR            = "cartservice.orbit.local:7070"
-        RECOMMENDATION_SERVICE_ADDR  = "recommendationservice.orbit.local:8081"
-        CHECKOUT_SERVICE_ADDR        = "checkoutservice.orbit.local:5050"
-        SHIPPING_SERVICE_ADDR        = "shippingservice.orbit.local:50051"
-        AD_SERVICE_ADDR              = "adservice.orbit.local:9555"
+        PRODUCT_CATALOG_SERVICE_ADDR = "productcatalogservice:3550"
+        CURRENCY_SERVICE_ADDR        = "currencyservice:7000"
+        CART_SERVICE_ADDR            = "cartservice:7070"
+        RECOMMENDATION_SERVICE_ADDR  = "recommendationservice:8081"
+        CHECKOUT_SERVICE_ADDR        = "checkoutservice:5050"
+        SHIPPING_SERVICE_ADDR        = "shippingservice:50051"
+        AD_SERVICE_ADDR              = "adservice:9555"
       }
       cpu        = "512"
       memory     = "1024"
@@ -80,7 +80,7 @@ locals {
       port      = 8080
       port_name = "http"
       environment = {
-        FRONTEND_ADDR = "http://frontend.orbit.local:8080"
+        FRONTEND_ADDR = "http://frontend:8080"
         USERS         = "10"
         RATE          = "1"
       }
