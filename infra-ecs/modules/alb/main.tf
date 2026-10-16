@@ -50,9 +50,9 @@ resource "aws_lb" "infra_ecs_orbit_alb" {
 
   enable_deletion_protection = false
 
-  tags = merge(var.tags, {
+  tags = {
     Name = "${var.name_prefix}-alb"
-  })
+  }
 }
 
 # frontend targets only. ip type because Fargate tasks register by ENI IP,

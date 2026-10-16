@@ -11,12 +11,4 @@ variable "vpc_cidr" {
 variable "name_prefix" {
   type        = string
   description = "Prefix for every Name tag in this module"
-  default     = "orbit"
-}
-
-# merged with provider default_tags; module adds its own Name tags on top
-variable "tags" {
-  type        = map(string)
-  description = "Extra tags applied to every resource created here"
-  default     = {}
 }

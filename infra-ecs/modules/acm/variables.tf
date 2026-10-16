@@ -2,7 +2,6 @@
 variable "name_prefix" {
   type        = string
   description = "Prefix for the certificate Name tag in this module"
-  default     = "orbit"
 }
 
 # the hostname the cert is issued for; fed from gitignored tfvars so the real

@@ -7,7 +7,7 @@ resource "aws_ecr_repository" "infra_ecs_orbit_repo" {
   # orbit/ namespace lets IAM and CI scope with one orbit/* rule,
   # immutable stops a pushed git SHA from being silently overwritten,
   # AES256 is the free S3-managed key, KMS would cost a key per repo
-  name                 = "orbit/${each.key}"
+  name                 = "${var.name_prefix}/${each.key}"
   image_tag_mutability = "IMMUTABLE_WITH_EXCLUSION"
   encryption_configuration {
     encryption_type = "AES256"

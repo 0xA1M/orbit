@@ -4,12 +4,10 @@
 variable "service_list" {
   type        = set(string)
   description = "Services list to deploy"
-  default     = ["adservice", "cartservice", "checkoutservice", "currencyservice", "emailservice", "frontend", "paymentservice", "productcatalogservice", "recommendationservice", "shippingservice", "loadgenerator"]
 }
 
 # prepended to every repo Name tag, e.g. orbit-frontend-repo
 variable "name_prefix" {
   type        = string
   description = "Prefix for every Name tag in this module"
-  default     = "orbit"
 }

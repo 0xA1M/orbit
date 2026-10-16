@@ -22,7 +22,6 @@ variable "certificate_arn" {
 variable "name_prefix" {
   type        = string
   description = "Prefix for every Name tag in this module"
-  default     = "orbit"
 }
 
 # frontend today; a variable so a second target group never needs a fork
@@ -37,11 +36,4 @@ variable "health_path" {
   type        = string
   description = "HTTP path the target group health check polls"
   default     = "/_healthz"
-}
-
-# merged with provider default_tags; module adds its own Name tags on top
-variable "tags" {
-  type        = map(string)
-  description = "Extra tags applied to every resource created here"
-  default     = {}
 }
