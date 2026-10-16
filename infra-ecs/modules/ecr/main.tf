@@ -1,8 +1,13 @@
 # ecr module: one repo per service under orbit/, immutable tags except latest/dev, scan on push, archive-then-expire lifecycle
 
 # for_each over a set, so adding or dropping a service only touches that one repo
+# force_delete is true because orbit repos hold only rebuildable images, no
+# unrecoverable data; this also lets tofu destroy clean them up (dev posture)
 resource "aws_ecr_repository" "infra_ecs_orbit_repo" {
   for_each = var.service_list
+
+  # the flag that lets destroy remove repos holding images
+  force_delete = true
 
   # orbit/ namespace lets IAM scope every repo with one prefix rule,
   # immutable stops a pushed git SHA from being silently overwritten,
