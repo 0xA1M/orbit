@@ -1,6 +1,6 @@
 # orbit infra-ecs
 
-The OpenTofu that stands up and runs the whole shop: one VPC spread over two AZs, ten container services on Fargate discovering each other through Service Connect, and an ALB with my own ACM cert on 443 as the front door.
+The OpenTofu that stands up and runs the whole shop: one VPC spread over two AZs, eleven services on Fargate discovering each other through Service Connect, and an ALB with my own ACM cert on 443 as the front door.
 
 State bucket comes first: it is created once by the bootstrap root at `../bootstrap`, which has its own README. This root only points its backend at that bucket and gives itself a unique key.
 
@@ -18,12 +18,21 @@ A lifecycle policy keeps storage from growing forever. An image no one has pulle
 
 One ACM certificate for the single hostname `orbit.example.com`. This is what the ALB serves on 443. Nothing wider is requested: no apex, no wildcard, so one hostname and one validation record.
 
-Validation is DNS, but the zone lives in Cloudflare rather than Route53, so OpenTofu cannot create the validation record itself. There is deliberately no `aws_acm_certificate_validation` resource. That resource is a waiter: it would sit there for up to 75 minutes waiting on a record only a human can create, then fail. Instead the module hands back the validation record and the certificate stays PENDING until I add the CNAME in Cloudflare by hand. Once ACM sees it the cert goes ISSUED and the ALB can attach it.
+Validation is DNS, but the zone lives in Cloudflare rather than Route53, so a Cloudflare provider block creates the validation CNAME from the cert's own validation options. A `aws_acm_certificate_validation` resource then waits on that record, so the cert reaches ISSUED inside the same apply instead of sitting PENDING for a human to paste a CNAME.
 
 Outputs:
 
-- certificate_arn, the ARN of the issued cert
-- domain_validation, the record name and value to paste into Cloudflare
+- certificate_arn, the ARN of the issued cert, sourced from the validation so the ALB listener implicitly waits for ISSUED instead of attaching a PENDING cert
+- domain_validation, the record set ACM asked for, kept around for inspection
+
+## dns
+
+Two Cloudflare records, both unproxied (gray cloud: the ALB terminates TLS, so Cloudflare must not intercept):
+
+- the validation CNAME from the ACM module, which proves I own the hostname
+- the site CNAME, `orbit` pointed at the ALB's DNS name, which is what browsers actually resolve
+
+Both are created by OpenTofu from the same hostname variable, so there is one hostname to change and nowhere for a record to drift from it.
 
 ## alb
 
@@ -73,8 +82,8 @@ infra-ecs/
   services.tf       per service wiring: image, port, env, sizing, callers
   ecs_sgs.tf        one identity SG per service plus the caller graph rules
   main.tf           root wiring, instantiates the modules
-  variables.tf      region and site hostname
-  versions.tf       tool pins plus the S3 backend block
+  variables.tf      region, site hostname, cloudflare zone id
+  versions.tf       tool pins (AWS + Cloudflare) plus the S3 backend block
   backend.tfvars    gitignored, holds the state bucket name
   terraform.tfvars  gitignored, holds the site hostname and other real values
 ```
@@ -86,15 +95,15 @@ Anything ending in `.example` is the committable template. Copy it, fill your ow
 Needs devbox plus an authenticated AWS CLI on your machine. The devbox shell gives you OpenTofu, the AWS CLI, grpcurl and friends. Everything runs locally, with my own credentials.
 
 ```text
-devbox run init                # backend init for infra-ecs
-devbox run validate            # check the config
-devbox run plan                # what would change
-devbox run apply               # make it real
-devbox run destroy              # tear it down when the session ends
+devbox run infra-ecs-init       # backend init for this root
+devbox run infra-ecs-validate   # check the config
+devbox run infra-ecs-plan       # what would change
+devbox run infra-ecs-apply      # make it real
+devbox run infra-ecs-destroy    # tear it down
 devbox run sts                  # who am I authenticated as
 devbox run ecr-login            # docker login for pushing images
 ```
 
-Every script takes an optional root directory as its first argument and defaults to `infra-ecs`, so `devbox run plan -- some-other-root` targets that root instead. Bootstrap is the exception: it has no backend, so run it from `bootstrap/` at the repo root directly.
+Every root has its own set with the same verbs, so a new root just adds five more lines. The backend file lives next to each root (`infra-ecs/backend.tfvars`).
 
-First time from scratch: apply the bootstrap root, then `devbox run init`, then plan and apply this root.
+First time from scratch: apply the bootstrap root, then `devbox run infra-ecs-init`, then plan and apply this root.

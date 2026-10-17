@@ -2,7 +2,7 @@
 
 A playground for exploring AWS container services, mostly ECS and EKS, and learning how to run and operate them for real. The app is Google's microservices-demo, kept as code only (the exact commit is in app/NOTICE), with every piece of infrastructure written by me instead of copied.
 
-Right now the shop runs on AWS: one VPC spread over two AZs, eleven services on ECS Fargate finding each other through Service Connect, an ALB with my own ACM cert as the front door, and images in ECR. DNS lives in Cloudflare.
+The shop is built to run on AWS: one VPC spread over two AZs, eleven services on ECS Fargate finding each other through Service Connect, an ALB with my own ACM cert as the front door, and images in ECR. DNS lives in Cloudflare.
 
 ## layout
 
@@ -27,16 +27,16 @@ devbox run bootstrap-plan      see what it would make
 devbox run bootstrap-apply     create the bucket
 ```
 
-After that the other roots point their backends at that bucket and use the shared scripts, which default to the infra-ecs root and take another root as an argument when you need one:
+After that, each root has its own scripts. Infra first:
 
 ```text
-devbox run sts         check who you are on AWS first
-devbox run init        hook the backend up
-devbox run validate    check the config
-devbox run plan        see what would change
-devbox run apply       make it real
-devbox run destroy     tear it down
-devbox run ecr-login   docker login for pushing images
+devbox run sts                  check who you are on AWS first
+devbox run infra-ecs-init       hook the backend up
+devbox run infra-ecs-validate   check the config
+devbox run infra-ecs-plan       see what would change
+devbox run infra-ecs-apply      make it real
+devbox run infra-ecs-destroy    tear it down
+devbox run ecr-login            docker login for pushing images
 ```
 
 The CI identity root has its own scripts, same lifecycle:

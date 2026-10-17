@@ -153,7 +153,7 @@ Standalone quote logic. Called by frontend and checkout. Test done: all three of
 
 ## paymentservice
 
-Node gRPC that serves `Charge` for checkout. I gave it a `50051` default and fixed my own typo where I wrote a single pipe instead of a double pipe. I also flipped its profiler to opt in and added a nonroot user with pinned digests. It shares a port with shipping, so locally I run one at a time.
+Node gRPC that serves `Charge` for checkout. I gave it a `50052` default so it no longer collides with shipping, and fixed my own typo where I wrote a single pipe instead of a double pipe. I also flipped its profiler to opt in and added a nonroot user with pinned image tags.
 
 | var | needed | default | note |
 |---|---|---|---|
@@ -163,11 +163,11 @@ Node gRPC that serves `Charge` for checkout. I gave it a `50051` default and fix
 | COLLECTOR_SERVICE_ADDR | only with tracing | none | required then |
 | OTEL_SERVICE_NAME | no | paymentservice | trace resource name |
 
-Serves `Charge`. Called by checkout, not frontend directly. Same `50051` as shipping, run one at a time locally. Test done: disabled logs, started, SERVING with proto file.
+Serves `Charge`. Called by checkout, not frontend directly. Test done: disabled logs, started, SERVING with proto file.
 
 ## emailservice
 
-Python gRPC that only runs in dummy mode and just logs the confirmation. I flipped its profiler to opt in and added a nonroot user. It needs nothing to start and only checkout calls it. It shares `8080`, so locally I run one of the three at a time.
+Python gRPC that only runs in dummy mode and just logs the confirmation. I flipped its profiler to opt in and added a nonroot user. It needs nothing to start and only checkout calls it. It listens on 8082 since moving off the shared 8080.
 
 | var | needed | default | note |
 |---|---|---|---|
@@ -176,7 +176,7 @@ Python gRPC that only runs in dummy mode and just logs the confirmation. I flipp
 | ENABLE_TRACING | no | off | `1` needs collector |
 | COLLECTOR_SERVICE_ADDR | only with tracing | localhost:4317 | defaults locally |
 
-Serves `SendOrderConfirmation` as a log line. Called by checkout only. Same `8080` as frontend and recommendation, run one at a time locally. Test done: dummy start, SERVING with proto file.
+Serves `SendOrderConfirmation` as a log line. Called by checkout only. Test done: dummy start, SERVING with proto file.
 
 ## adservice
 
