@@ -10,6 +10,7 @@ End goal is simple. Get the shop running on EKS behind Envoy Gateway, deployed w
 
 ```text
 app/               the shop code, sanitized, my Dockerfiles and tweaks
+bootstrap/         one-time root that creates the S3 bucket holding state
 infra-ecs/         OpenTofu for the ECS version of the shop
 
 ```
@@ -30,4 +31,4 @@ devbox run apply      # make it real
 devbox run destroy    # tear it down, I do this after every session
 ```
 
-Scripts default to the infra-ecs root. Everything is local-first: bootstrap and applies run from my machine with my own AWS credentials.
+Scripts default to the infra-ecs root, and take another root as an argument when you need one. Everything is local-first: bootstrap and applies run from my machine with my own AWS credentials.

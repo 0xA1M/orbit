@@ -2,25 +2,7 @@
 
 The OpenTofu that stands up and runs the whole shop: one VPC spread over two AZs, ten container services on Fargate discovering each other through Service Connect, and an ALB with my own ACM cert on 443 as the front door.
 
-To use it yourself start at bootstrap/, copy terraform.tfvars.example to terraform.tfvars, put in your own bucket name and apply. Everything else depends on that bucket existing first.
-
-## bootstrap
-
-One time setup that creates the S3 bucket holding OpenTofu state for every other root in this repo.
-
-What it makes: one S3 bucket, versioned (every apply keeps the old state file so a bad apply can be rolled back), encrypted with SSE-S3, and locked down from public access four different ways.
-
-Why it is not in the GitHub Actions pipeline: bootstrap runs exactly once from my machine with an already authenticated AWS CLI. CI does not need to re-run a one time thing, and letting CI touch the state bucket would mean giving the pipeline permissions to destroy state. So CI only handles the real infrastructure roots, not this one.
-
-Files, each has short comments explaining what is going on:
-
-- versions.tf pins OpenTofu and AWS provider versions
-- variables.tf region, bucket name, tags
-- main.tf provider wiring plus bucket with its guards
-- outputs.tf bucket name and ARN
-- terraform.tfvars.example values, copy it to terraform.tfvars and fill your own bucket name
-
-After bootstrap is applied, the other roots point their backend block at this bucket using the outputs.
+State bucket comes first: it is created once by the bootstrap root at `../bootstrap`, which has its own README. This root only points its backend at that bucket and gives itself a unique key.
 
 ## ecr
 
@@ -72,11 +54,14 @@ ECS services, private subnets
 
 ```text
 infra-ecs/
-  bootstrap/        one-time S3 state bucket, runs once from my machine
   modules/
     network/        VPC, subnets, IGW, NATs, route tables
     ecr/            one image repo per service plus lifecycle policy
     acm/            the TLS cert for the site hostname
+    alb/            the front door: public ALB, target group, 443 listener
+    ecs-service/    one service: log group, execution role, task def, service
+  services.tf       per service wiring: image, port, env, sizing, callers
+  ecs_sgs.tf        one identity SG per service plus the caller graph rules
   main.tf           root wiring, instantiates the modules
   variables.tf      region and site hostname
   versions.tf       tool pins plus the S3 backend block
@@ -100,6 +85,6 @@ devbox run sts                  # who am I authenticated as
 devbox run ecr-login            # docker login for pushing images
 ```
 
-Every script takes an optional root directory as its first argument and defaults to `infra-ecs`, so `devbox run plan -- some-other-root` targets that root instead. Bootstrap is the exception: it has no backend, so run init and apply from inside `infra-ecs/bootstrap` directly.
+Every script takes an optional root directory as its first argument and defaults to `infra-ecs`, so `devbox run plan -- some-other-root` targets that root instead. Bootstrap is the exception: it has no backend, so run it from `bootstrap/` at the repo root directly.
 
-First time from scratch: bootstrap first, then `devbox run init`, then plan and apply the main root.
+First time from scratch: apply the bootstrap root, then `devbox run init`, then plan and apply this root.
