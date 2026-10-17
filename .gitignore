@@ -6,6 +6,9 @@
 *.tfvars
 !*.tfvars.example
 
+# local secrets file (see above: never committed)
+.env
+
 # CLI crash logs
 crash.log
 crash.*.log
