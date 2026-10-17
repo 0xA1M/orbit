@@ -12,17 +12,31 @@
   },
   "shell": {
     "init_hook": [
-      "echo 'orbit env ready. usage: devbox run <init|fmt|validate|plan|apply|destroy> [-- <root>]. root defaults to infra-ecs.'"
+      "echo 'orbit env ready.'",
+      "echo '  infra-ecs: devbox run <init|plan|apply|destroy|validate> [-- <root>]'",
+      "echo '  bootstrap: devbox run bootstrap-<init|plan|apply|destroy>'",
+      "echo '  ci-iam:    devbox run ci-iam-<init|plan|apply|destroy>'",
+      "echo '  helpers:   devbox run <sts|ecr-login|fmt|validate>'"
     ],
     "scripts": {
       "init": "tofu -chdir=${1:-infra-ecs} init -backend-config=backend.tfvars",
-      "fmt": "tofu fmt -recursive ${1:-.}",
-      "validate": "tofu -chdir=${1:-infra-ecs} validate",
       "plan": "tofu -chdir=${1:-infra-ecs} plan",
       "apply": "tofu -chdir=${1:-infra-ecs} apply",
       "destroy": "tofu -chdir=${1:-infra-ecs} destroy",
+      "validate": "tofu -chdir=${1:-infra-ecs} validate",
+      "fmt": "tofu fmt -recursive ${1:-.}",
       "sts": "aws sts get-caller-identity",
-      "ecr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-east-1.amazonaws.com"
+      "ecr-login": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-east-1.amazonaws.com",
+      "bootstrap-validate": "tofu -chdir=bootstrap validate",
+      "bootstrap-init": "tofu -chdir=bootstrap init",
+      "bootstrap-plan": "tofu -chdir=bootstrap plan",
+      "bootstrap-apply": "tofu -chdir=bootstrap apply",
+      "bootstrap-destroy": "tofu -chdir=bootstrap destroy",
+      "ci-iam-validate": "tofu -chdir=ci-iam validate",
+      "ci-iam-init": "tofu -chdir=ci-iam init -backend-config=backend.tfvars",
+      "ci-iam-plan": "tofu -chdir=ci-iam plan",
+      "ci-iam-apply": "tofu -chdir=ci-iam apply",
+      "ci-iam-destroy": "tofu -chdir=ci-iam destroy"
     }
   },
   "aliases": {

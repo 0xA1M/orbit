@@ -12,7 +12,7 @@ Tags are immutable once pushed, so a git SHA tag cannot be overwritten and a dep
 
 Every push is scanned for known CVEs automatically, and repos are encrypted at rest with AES256, the S3-managed keys, so there is no customer KMS key to pay for or rotate.
 
-A lifecycle policy keeps storage from growing forever. An image no one has pulled in 15 days moves to archive storage, which is cheaper but still pullable, and 60 days after it was archived it is expired and deleted.
+A lifecycle policy keeps storage from growing forever. An image no one has pulled in 15 days moves to archive storage, which is cheaper but still pullable, and 90 days after it was archived it is expired and deleted.
 
 ## acm
 
@@ -29,11 +29,21 @@ Outputs:
 
 The public front door. Internet-facing ALB across both public subnets, with its own security group letting 80 and 443 in from anywhere. Port 443 serves the ACM cert and forwards everything to the frontend target group. Port 80 just bounces everything to 443 with a permanent redirect.
 
-Targets register by IP, not instance id, because Fargate tasks are ENIs with addresses, not EC2 boxes. Health checks hit `/_healthz` and want a 200 back. Deletion protection stays off on purpose since the whole stack gets torn down after sessions.
+Targets register by IP, not instance id, because Fargate tasks are ENIs with addresses, not EC2 boxes. Health checks hit `/_healthz` and want a 200 back. Deletion protection stays off so a teardown is never blocked by it.
+
+## ecs services
+
+One cluster, one Service Connect namespace, eleven services. Each service is the same shape: a log group, its own execution role, a task definition, and the service itself. Anything that differs per service lives in `services.tf` at the root: image, port, env vars, cpu and memory, and who calls it.
+
+The frontend is the only service wired to the ALB. Backends render no load balancer block at all.
+
+Security groups are built from the caller lists, one group per service, one ingress rule per caller edge. `productcatalogservice` for example accepts traffic only from the frontend, checkout and recommendation. The frontend accepts only the ALB. Nothing is reachable from another service that does not actually call it.
+
+Deploys use the circuit breaker with rollback, so a task that cannot start stops its own deployment and reverts instead of crash looping forever.
 
 ## how it fits together
 
-Traffic comes in from the internet to an ALB sitting in the public subnets. The ALB terminates TLS with the ACM cert and forwards plain HTTP to the frontend service on 8080. Everything else talks behind it over Service Connect DNS names like `productcatalogservice:3550`, inside the private subnets. Outbound stuff like ECR image pulls and log shipping goes out through one NAT per AZ.
+Traffic comes in from the internet to an ALB sitting in the public subnets. The ALB terminates TLS with the ACM cert and forwards plain HTTP to the frontend service on 8080. Everything else talks behind it over Service Connect short names like `productcatalogservice:3550`, inside the private subnets. Outbound stuff like ECR image pulls and log shipping goes out through one NAT per AZ.
 
 ```text
 internet
@@ -65,15 +75,15 @@ infra-ecs/
   main.tf           root wiring, instantiates the modules
   variables.tf      region and site hostname
   versions.tf       tool pins plus the S3 backend block
-  backend.tfvars    state bucket name, never committed
-  terraform.tfvars  site hostname and any real values, never committed
+  backend.tfvars    gitignored, holds the state bucket name
+  terraform.tfvars  gitignored, holds the site hostname and other real values
 ```
 
 Anything ending in `.example` is the committable template. Copy it, fill your own values, the real file stays on your machine.
 
 ## running it
 
-Needs devbox plus an authenticated AWS CLI on your machine. The devbox shell gives you OpenTofu, the AWS CLI, grpcurl and friends. Nothing here runs in CI yet.
+Needs devbox plus an authenticated AWS CLI on your machine. The devbox shell gives you OpenTofu, the AWS CLI, grpcurl and friends. Everything runs locally, with my own credentials.
 
 ```text
 devbox run init                # backend init for infra-ecs
