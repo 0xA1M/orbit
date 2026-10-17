@@ -39,3 +39,9 @@ variable "service_list" {
   description = "Services that get an ECR repo"
   default     = ["adservice", "cartservice", "checkoutservice", "currencyservice", "emailservice", "frontend", "paymentservice", "productcatalogservice", "recommendationservice", "shippingservice", "loadgenerator"]
 }
+
+# account-specific, like the domain: tracked files must never name it
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare zone ID holding the site DNS records"
+}

@@ -19,9 +19,10 @@ module "ecr" {
 }
 
 module "acm" {
-  source      = "./modules/acm"
-  name_prefix = var.name_prefix
-  domain_name = var.domain_name
+  source             = "./modules/acm"
+  name_prefix        = var.name_prefix
+  domain_name        = var.domain_name
+  cloudflare_zone_id = var.cloudflare_zone_id
 }
 
 module "alb" {
@@ -69,4 +70,19 @@ module "ecs_service" {
 
   # frontend registers with the ALB, everyone else renders no load balancer
   alb_target_group_arn = each.value.attach_alb ? module.alb.target_group_arn : null
+}
+
+# credentials come from CLOUDFLARE_API_TOKEN in the environment, never from a file
+provider "cloudflare" {}
+
+# the public name of the shop. gray cloud: the ALB terminates TLS, so
+# Cloudflare must not intercept. name is derived from domain_name on purpose,
+# one hostname string means no drift between the cert and the record
+resource "cloudflare_dns_record" "site" {
+  zone_id = var.cloudflare_zone_id
+  name    = element(split(".", var.domain_name), 0)
+  type    = "CNAME"
+  content = module.alb.dns_name
+  proxied = false
+  ttl     = 1
 }

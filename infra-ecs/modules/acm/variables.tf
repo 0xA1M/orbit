@@ -10,3 +10,9 @@ variable "domain_name" {
   type        = string
   description = "Hostname the certificate is issued for"
 }
+
+# account-scoped zone id; same secrecy rule as the domain, tracked files stay clean
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare zone ID holding the validation records"
+}
