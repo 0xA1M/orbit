@@ -1,0 +1,3 @@
+github_org   = "your-github-org"
+github_repo  = "your-repo-name"
+state_bucket = "your-globally-unique-state-bucket"
